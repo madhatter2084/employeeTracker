@@ -1,12 +1,11 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
-const { allowedNodeEnvironmentFlags } = require("process");
 const connection = mysql.createConnection({
   host: "localhost",
-  port: 3030,
+  port: 3306,
   user: "root",
   password: "password",
-  database: "employee_db",
+  database: "employees",
 });
 
 connection.connect(function (err) {
@@ -21,9 +20,8 @@ connection.connect(function (err) {
             type:"list",
             message: "Please, choose an option.",
             choices: ["View Departments", "View Roles", "View Employees", "Add Departments",
-                "View Roles", "View Employees", "Add Departments", "Add Roles", "Add Employee",
-                "Update Employee Role", "Delete Departments", "Delete Role", "Delete Employee",
-                 "Exit"],
+                "Add Roles", "Add Employee","Update Employee Role", "Delete Departments",
+                "Delete Role", "Delete Employee", "Exit"],
         })
         .then(function (answer){
             if(answer.userInput === "View Departments"){
@@ -34,12 +32,6 @@ connection.connect(function (err) {
                 viewEmployees();
             }else if(answer.userInput === "Add Departments"){
                 addDepartment();
-            }else if(answer.userInput === "View Roles"){
-                viewRoles();
-            }else if(answer.userInput === "View Employees"){
-                viewEmployees();
-            }else if(answer.userInput === "Add Departments"){
-                addDepartments();
             }else if(answer.userInput === "Add Roles"){
                 addRole();
             }else if(answer.userInput === "Add Employee"){
@@ -89,6 +81,7 @@ connection.connect(function (err) {
           inner join department on role.department_id=department.id`,
           function(err, results){
               if(err) throw err;
+              console.table(results);
               menuOrExit();
           }
       );
@@ -122,8 +115,8 @@ connection.connect(function (err) {
                 message: "Which department do you want to delete?",
                 choices: function(){
                     var choiceArray = ["Go Back"];
-                    for(var i=0; i < results.lenth; i++){
-                        choiceArray.push(ressults[i].name);
+                    for(var i=0; i < results.length; i++){
+                        choiceArray.push(results[i].name);
                     }
                     return choiceArray;
                 }
@@ -132,7 +125,7 @@ connection.connect(function (err) {
           if(answer.name === "Go Back"){
               start();
           }else{
-              connection.query(`DELETE FROM department WHERE name = "${answer.name}"`, printResults);
+              connection.query(`DELETE FROM department WHERE name = '${answer.name}'`, printResults);
           }
       })
     })
